@@ -183,3 +183,6 @@ body.in-game #hud-buttons { display: flex; }
   .btn { padding: 9px 14px; min-width: min(260px, 40vw); }
   .menu { gap: 7px; margin-top: 0; }
 }
+
+/* retired FIRE button: hide it even if an old cached page still includes it */
+#btn-fire { display: none !important; }

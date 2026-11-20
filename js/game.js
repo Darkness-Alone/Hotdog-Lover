@@ -33,7 +33,7 @@
     playerSpr = Sprites.makePlayer(playerImg, PW, PH);
     headSpr = Sprites.makeHead(playerImg, 26);
   };
-  playerImg.src = 'assets/player.png?v=4';
+  playerImg.src = 'assets/player.png?v=5';
 
   /* ======================= definitions ======================= */
   const DEFS = {
@@ -116,6 +116,9 @@
   /* ======================= input ======================= */
   const keys = {};
   let drag = null;
+  // An old cached page may still contain the retired FIRE button: remove it.
+  const oldFire = document.getElementById('btn-fire');
+  if (oldFire) oldFire.remove();
   const isKey = (...k) => k.some(x => keys[x]);
   window.addEventListener('keydown', e => {
     const k = e.key;
