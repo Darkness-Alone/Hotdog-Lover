@@ -29,7 +29,7 @@ Hit without missing to build a **combo multiplier** (up to **x8**). A tooth that
 | | Desktop | Mobile |
 |---|---|---|
 | Move | `←` `→` or `A` `D` | Touch and slide anywhere on the screen |
-| Shoot teeth | `Space` (hold) | Automatic while your finger is down (the **FIRE** button works too) |
+| Shoot teeth | `Space` (hold) | Automatic while your finger is down |
 | Pause | `P` or `Esc` | ❚❚ button, top-right |
 | Mute | `M` | ♪ button, top-right |
 

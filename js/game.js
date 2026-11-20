@@ -33,7 +33,7 @@
     playerSpr = Sprites.makePlayer(playerImg, PW, PH);
     headSpr = Sprites.makeHead(playerImg, 26);
   };
-  playerImg.src = 'assets/player.png';
+  playerImg.src = 'assets/player.png?v=4';
 
   /* ======================= definitions ======================= */
   const DEFS = {
@@ -115,7 +115,7 @@
 
   /* ======================= input ======================= */
   const keys = {};
-  let touchFire = false, drag = null;
+  let drag = null;
   const isKey = (...k) => k.some(x => keys[x]);
   window.addEventListener('keydown', e => {
     const k = e.key;
@@ -133,7 +133,7 @@
     if ((k === 'Enter' || k === ' ') && state === 'title' && currentScreen === 'title' && !onBtn) { e.preventDefault(); startGame(); }
   });
   window.addEventListener('keyup', e => { keys[e.key] = false; if (e.key === ' ' && state === 'playing') e.preventDefault(); });
-  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; touchFire = false; if (state === 'playing') pause(); });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; drag = null; if (state === 'playing') pause(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') pause(); });
 
   canvas.addEventListener('pointerdown', e => {
@@ -150,13 +150,6 @@
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
-  const fireBtn = document.getElementById('btn-fire');
-  fireBtn.addEventListener('pointerdown', e => { e.preventDefault(); Sound.unlock(); touchFire = true; fireBtn.classList.add('down'); });
-  const fireUp = () => { touchFire = false; fireBtn.classList.remove('down'); };
-  fireBtn.addEventListener('pointerup', fireUp);
-  fireBtn.addEventListener('pointercancel', fireUp);
-  fireBtn.addEventListener('pointerleave', fireUp);
-  fireBtn.addEventListener('contextmenu', e => e.preventDefault());
 
   /* ======================= UI screens ======================= */
   let currentScreen = 'title';
@@ -285,7 +278,7 @@
   function pause() {
     if (state !== 'playing') return;
     state = 'paused';
-    touchFire = false; drag = null;
+    drag = null;
     Sound.stopMusic();
     show('pause');
     document.getElementById('pause-score').textContent = game.score;
@@ -870,7 +863,7 @@
     p.tilt = lerp(p.tilt, clamp(p.vx / maxSp, -1, 1) * 0.16, Math.min(1, dt * 10));
     if (sugar) { p.trail.unshift({ x: p.x, y: p.y, t: game.t }); if (p.trail.length > 6) p.trail.pop(); } else p.trail.length = 0;
     // Holding a finger (or mouse) on the screen moves AND fires: no separate fire button needed.
-    const firing = isKey(' ') || touchFire || !!drag || (prefs.autofire && isKey('ArrowLeft', 'ArrowRight', 'a', 'd', 'A', 'D'));
+    const firing = isKey(' ') || !!drag || (prefs.autofire && isKey('ArrowLeft', 'ArrowRight', 'a', 'd', 'A', 'D'));
     if (firing && (game.phase === 'fight' || game.phase === 'intro')) tryFire(p);
   }
   function tryFire(p) {
