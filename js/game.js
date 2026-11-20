@@ -869,7 +869,8 @@
     p.x = clamp(p.x + p.vx * dt, PW * 0.4, W - PW * 0.4);
     p.tilt = lerp(p.tilt, clamp(p.vx / maxSp, -1, 1) * 0.16, Math.min(1, dt * 10));
     if (sugar) { p.trail.unshift({ x: p.x, y: p.y, t: game.t }); if (p.trail.length > 6) p.trail.pop(); } else p.trail.length = 0;
-    const firing = isKey(' ') || touchFire || (prefs.autofire && (drag || isKey('ArrowLeft', 'ArrowRight', 'a', 'd', 'A', 'D')));
+    // Holding a finger (or mouse) on the screen moves AND fires: no separate fire button needed.
+    const firing = isKey(' ') || touchFire || !!drag || (prefs.autofire && isKey('ArrowLeft', 'ArrowRight', 'a', 'd', 'A', 'D'));
     if (firing && (game.phase === 'fight' || game.phase === 'intro')) tryFire(p);
   }
   function tryFire(p) {
