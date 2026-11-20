@@ -25,7 +25,8 @@
   const prefs = Object.assign({ autofire: false }, store.get('glizzy.prefs', {}));
 
   /* Player sprite (user-supplied character, chest-up) */
-  const PW = 70, PH = PW * 410 / 244;
+  const PW = 54, PH = PW * 410 / 244;
+  const PK = PW / 70; // scale of the player's pod, flames and shield relative to the original size
   const MOUTH = { x: 0.62, y: 0.56 };
   const playerImg = new Image();
   let playerSpr = null, headSpr = null;
@@ -33,7 +34,7 @@
     playerSpr = Sprites.makePlayer(playerImg, PW, PH);
     headSpr = Sprites.makeHead(playerImg, 26);
   };
-  playerImg.src = 'assets/player.png?v=5';
+  playerImg.src = 'assets/player.png?v=6';
 
   /* ======================= definitions ======================= */
   const DEFS = {
@@ -729,7 +730,7 @@
       }
     }
     // collisions with player
-    if (!p.dead && p.invuln <= 0 && inRect(b, p.x, p.y - PH * 0.15, 18)) hitPlayer();
+    if (!p.dead && p.invuln <= 0 && inRect(b, p.x, p.y - PH * 0.15, 14)) hitPlayer();
   }
   function startAttack(b, a) {
     const p = game.player, sp = 1 + (b.hp / b.maxHp < 0.4 ? 0.15 : 0) + b.cycle * 0.1;
@@ -895,7 +896,8 @@
       Sound.sfx('molar');
     }
   }
-  function playerRect(p) { return { x: p.x - 20, y: p.y - PH * 0.42, w: 40, h: PH * 0.78 }; }
+  // Hitbox is a bit smaller than the sprite so near-misses feel fair.
+  function playerRect(p) { return { x: p.x - PW * 0.27, y: p.y - PH * 0.4, w: PW * 0.54, h: PH * 0.72 }; }
   function hitPlayer() {
     const p = game.player;
     if (p.dead || p.invuln > 0) return;
@@ -1051,7 +1053,7 @@
         }
       }
       if (!gone && !p.dead) {
-        if (shield && Math.hypot(b.x - p.x, b.y - (p.y - 10)) < 62) {
+        if (shield && Math.hypot(b.x - p.x, b.y - (p.y - 10)) < 62 * PK) {
           sparks(b.x, b.y, '#c8d4e6', 6); Sound.sfx('clink'); gone = true;
         } else if (p.invuln <= 0 && b.x + b.r > pr.x && b.x - b.r < pr.x + pr.w && b.y + b.r > pr.y && b.y - b.r < pr.y + pr.h) {
           toppingBurst(b.x, b.y, b.kind in TOPPING_COLORS ? b.kind : 'ketchup', 12);
@@ -1192,34 +1194,34 @@
     if (p.mouthT > 0) {
       const mx = -PW / 2 + MOUTH.x * PW, my = -PH / 2 + MOUTH.y * PH;
       ctx.fillStyle = '#2a0008';
-      ctx.beginPath(); ctx.ellipse(mx, my + 1, 8, 5.5, 0, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#ff6b8a'; ctx.beginPath(); ctx.ellipse(mx, my + 4, 4.5, 2, 0, 0, TAU); ctx.fill();
-      if (p.pw.machine) { ctx.strokeStyle = 'rgba(255,61,242,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(mx, my + 1, 10, 7, 0, 0, TAU); ctx.stroke(); }
+      ctx.beginPath(); ctx.ellipse(mx, my + 1, 8 * PK, 5.5 * PK, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#ff6b8a'; ctx.beginPath(); ctx.ellipse(mx, my + 4 * PK, 4.5 * PK, 2 * PK, 0, 0, TAU); ctx.fill();
+      if (p.pw.machine) { ctx.strokeStyle = 'rgba(255,61,242,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(mx, my + 1, 10 * PK, 7 * PK, 0, 0, TAU); ctx.stroke(); }
     }
     ctx.restore();
     // thruster flame
     const fy = p.y + PH * 0.5 + bob;
-    const fl = 18 + Math.sin(game.t * 40) * 5 + (p.pw.sugar ? 14 : 0);
+    const fl = (18 + Math.sin(game.t * 40) * 5 + (p.pw.sugar ? 14 : 0)) * PK;
     const fg = ctx.createLinearGradient(0, fy - 4, 0, fy + fl);
     fg.addColorStop(0, '#ffffff'); fg.addColorStop(0.3, p.pw.sugar ? '#ff4fa0' : '#3df9ff'); fg.addColorStop(1, 'rgba(80,0,255,0)');
     ctx.fillStyle = fg;
-    for (const dx of [-14, 14]) {
+    for (const dx of [-14 * PK, 14 * PK]) {
       ctx.beginPath(); ctx.moveTo(p.x + dx - 7, fy - 6); ctx.quadraticCurveTo(p.x + dx, fy + fl * 1.2, p.x + dx + 7, fy - 6); ctx.fill();
     }
     ctx.fillStyle = '#20163a'; ctx.strokeStyle = '#3df9ff'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(p.x, fy - 6, 30, 7, 0, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(p.x, fy - 6, 30 * PK, 7 * PK, 0, 0, TAU); ctx.fill(); ctx.stroke();
     // braces shield
     if (p.pw.braces > 0) {
       const t = p.pw.braces, blink = t < 2 && Math.floor(game.t * 8) % 2;
       if (!blink) {
         ctx.strokeStyle = 'rgba(200,212,230,0.85)'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(p.x, p.y - 10 + bob, 60, 0, TAU); ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y - 10 + bob, 60 * PK, 0, TAU); ctx.stroke();
         ctx.strokeStyle = 'rgba(61,249,255,0.35)'; ctx.lineWidth = 9;
-        ctx.beginPath(); ctx.arc(p.x, p.y - 10 + bob, 62, 0, TAU); ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y - 10 + bob, 62 * PK, 0, TAU); ctx.stroke();
         for (let i = 0; i < 8; i++) {
           const a = i / 8 * TAU + game.t * 1.5;
-          ctx.fillStyle = '#e0e8f0'; ctx.fillRect(p.x + Math.cos(a) * 60 - 4, p.y - 10 + bob + Math.sin(a) * 60 - 4, 8, 8);
-          ctx.fillStyle = '#5a6478'; ctx.fillRect(p.x + Math.cos(a) * 60 - 1.5, p.y - 10 + bob + Math.sin(a) * 60 - 1.5, 3, 3);
+          ctx.fillStyle = '#e0e8f0'; ctx.fillRect(p.x + Math.cos(a) * 60 * PK - 3, p.y - 10 + bob + Math.sin(a) * 60 * PK - 3, 6, 6);
+          ctx.fillStyle = '#5a6478'; ctx.fillRect(p.x + Math.cos(a) * 60 * PK - 1, p.y - 10 + bob + Math.sin(a) * 60 * PK - 1, 2, 2);
         }
       }
     }
