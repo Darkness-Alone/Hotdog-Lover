@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Glizzy Gobbler</title>
+  <meta name="description" content="A ridiculous retro arcade shooter. Shoot teeth. Eat hotdogs. Save the relish.">
+  <meta name="theme-color" content="#07021a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Glizzy Gobbler game"></canvas>
+
+  <div id="hud-buttons">
+    <button id="btn-mute" class="hud-btn" tabindex="-1" aria-label="Mute"><span class="ico-snd">♪</span></button>
+    <button id="btn-pause" class="hud-btn" tabindex="-1" aria-label="Pause"><span class="ico-pause"></span></button>
+  </div>
+  <button id="btn-fire" tabindex="-1" aria-label="Fire">FIRE</button>
+  <div id="toast"></div>
+
+  <!-- TITLE -->
+  <section id="screen-title" class="screen">
+    <div class="panel title-panel">
+      <div class="t-left">
+      <div class="logo">
+        <span class="l1">GLIZZY</span>
+        <span class="l2">GOBBLER</span>
+      </div>
+      <p class="subtitle">"THEY'RE NOT GETTING AWAY WITH THE RELISH."</p>
+      <div class="hero-wrap">
+        <img class="hero" src="assets/player.png" alt="The Gobbler">
+        <div class="hero-teeth"><i></i><i></i><i></i></div>
+      </div>
+      </div>
+      <div class="t-right">
+      <nav class="menu">
+        <button class="btn primary" data-action="play">PLAY</button>
+        <button class="btn" data-action="howto">HOW TO PLAY</button>
+        <button class="btn" data-action="scores">HIGH SCORES</button>
+        <button class="btn" data-action="settings">SETTINGS</button>
+      </nav>
+      <div class="hiscore">HI-SCORE <span id="title-hi">0000000</span></div>
+      <div class="blink">INSERT TEETH TO PLAY</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO PLAY -->
+  <section id="screen-howto" class="screen">
+    <div class="panel scroll">
+      <h2>HOW TO PLAY</h2>
+      <div class="cols">
+        <div class="box">
+          <h3>CONTROLS</h3>
+          <table class="keys">
+            <tr><td><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd></td><td>MOVE</td></tr>
+            <tr><td><kbd>SPACE</kbd></td><td>SHOOT TEETH</td></tr>
+            <tr><td><kbd>P</kbd> / <kbd>ESC</kbd></td><td>PAUSE</td></tr>
+            <tr><td><kbd>M</kbd></td><td>MUTE</td></tr>
+          </table>
+          <p class="small">MOBILE: DRAG ANYWHERE TO MOVE, HOLD <b>FIRE</b> TO SHOOT. AUTO-FIRE IS IN SETTINGS.</p>
+        </div>
+        <div class="box">
+          <h3>EAT EVERYTHING</h3>
+          <p class="small">HOTDOGS DON'T POP IN ONE HIT. EVERY TOOTH STRIPS A TOPPING OR TAKES A BITE, UNTIL THE WHOLE GLIZZY IS GOBBLED.</p>
+          <p class="small">HIT WITHOUT MISSING TO BUILD A <b class="pink">COMBO MULTIPLIER</b> (UP TO x8). A MISSED TOOTH RESETS IT.</p>
+          <p class="small">EVERY 5TH WAVE A <b class="red">BOSS DOG</b> ATTACKS. EXTRA LIVES AT 15,000 · 40,000 · THEN EVERY 40,000.</p>
+        </div>
+      </div>
+      <h3>THE MENU</h3>
+      <ul id="dog-list" class="dog-list"></ul>
+      <h3>POWER-UPS</h3>
+      <ul id="pw-list" class="pw-list"></ul>
+      <button class="btn" data-action="back">BACK</button>
+    </div>
+  </section>
+
+  <!-- HIGH SCORES -->
+  <section id="screen-scores" class="screen">
+    <div class="panel">
+      <h2>HIGH SCORES</h2>
+      <ol id="score-list" class="score-list"></ol>
+      <button class="btn" data-action="back">BACK</button>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-settings" class="screen">
+    <div class="panel">
+      <h2>SETTINGS</h2>
+      <label class="slider">MASTER <input type="range" id="vol-master" min="0" max="100"></label>
+      <label class="slider">MUSIC <input type="range" id="vol-music" min="0" max="100"></label>
+      <label class="slider">SOUND FX <input type="range" id="vol-sfx" min="0" max="100"></label>
+      <label class="check"><input type="checkbox" id="opt-mute"> MUTE ALL</label>
+      <label class="check"><input type="checkbox" id="opt-autofire"> AUTO-FIRE WHILE MOVING</label>
+      <button class="btn" data-action="back">BACK</button>
+    </div>
+  </section>
+
+  <!-- PAUSE -->
+  <section id="screen-pause" class="screen dim">
+    <div class="panel">
+      <h2 class="cyan">PAUSED</h2>
+      <p class="small">SCORE <b id="pause-score">0</b> · WAVE <b id="pause-wave">1</b></p>
+      <nav class="menu">
+        <button class="btn primary" data-action="resume">RESUME</button>
+        <button class="btn" data-action="restart">RESTART</button>
+        <button class="btn" data-action="settings">SETTINGS</button>
+        <button class="btn" data-action="quit">QUIT TO TITLE</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- GAME OVER -->
+  <section id="screen-gameover" class="screen dim">
+    <div class="panel">
+      <h2 class="red big">GAME OVER</h2>
+      <p class="tagline">YOU GOT GLIZZY'D.</p>
+      <div id="go-new" class="newhi">★ NEW HIGH SCORE! ★</div>
+      <table class="stats">
+        <tr><td>SCORE</td><td id="go-score">0</td></tr>
+        <tr><td>WAVE</td><td id="go-wave">1</td></tr>
+        <tr><td>BEST COMBO</td><td id="go-combo">0</td></tr>
+        <tr><td>HI-SCORE</td><td id="go-best">0</td></tr>
+      </table>
+      <p id="go-rank" class="small cyan"></p>
+      <nav class="menu">
+        <button class="btn primary" data-action="restart">PLAY AGAIN</button>
+        <button class="btn" data-action="quit">MAIN MENU</button>
+      </nav>
+    </div>
+  </section>
+
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
