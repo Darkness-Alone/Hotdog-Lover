@@ -34,7 +34,7 @@
     playerSpr = Sprites.makePlayer(playerImg, PW, PH);
     headSpr = Sprites.makeHead(playerImg, 26);
   };
-  playerImg.src = 'assets/player.png?v=6';
+  playerImg.src = 'assets/player.png?v=7';
 
   /* ======================= definitions ======================= */
   const DEFS = {
@@ -916,7 +916,8 @@
       part(p.x, p.y - 30, Math.cos(a) * s, Math.sin(a) * s, rand(1, 2), '#fff', 1, 700, 'tooth', rand(-10, 10));
     }
     textPop(p.x, p.y - 80, pick(['OUCH!', 'MY TEETH!', 'GLIZZY\'D!', 'BRAIN FREEZE!']), '#ff2a1f', 16);
-    if (game.lives <= 0) { game.eb.length = 0; Sound.stopMusic(); }
+    // Defer clearing enemy shots: hitPlayer can run while the bullet loop is iterating them.
+    if (game.lives <= 0) { game.clearShots = true; Sound.stopMusic(); }
   }
   function collectPower(pw) {
     const p = game.player, P = PWR[pw.type];
@@ -1098,6 +1099,7 @@
       const t = g.texts[i]; t.life -= dt; t.y -= 40 * dt;
       if (t.life <= 0) g.texts.splice(i, 1);
     }
+    if (g.clearShots) { g.eb.length = 0; g.clearShots = false; }
   }
 
   function updateStars(dt, speed) {
@@ -1471,9 +1473,10 @@
     titleT += dt;
     const playing = state === 'playing';
     updateStars(dt, playing ? 9 : 4);
-    if (playing) update(dt);
+    // Safety net: an unexpected error in one frame must never stop the game loop.
+    if (playing) { try { update(dt); } catch (err) { console.error('Glizzy Gobbler update error:', err); } }
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) toastEl.classList.remove('on'); }
-    render();
+    try { render(); } catch (err) { console.error('Glizzy Gobbler render error:', err); }
     requestAnimationFrame(frame);
   }
 
