@@ -219,8 +219,8 @@ const Sprites = (() => {
   };
 
   function crown(x, L, h, lw) {
-    const cx = L * 0.05, cy = -h * 0.55, w = L * 0.34, ch = h * 0.42;
-    x.fillStyle = '#ffd700'; x.strokeStyle = '#6a4a00'; x.lineWidth = lw;
+    const cx = L * 0.05, cy = -h * 0.62, w = L * 0.4, ch = h * 0.55, ow = Math.min(lw, 2.6);
+    x.fillStyle = '#ffd700'; x.strokeStyle = '#6a4a00'; x.lineWidth = ow;
     x.beginPath();
     x.moveTo(cx - w / 2, cy + ch / 2);
     x.lineTo(cx - w / 2, cy - ch / 2); x.lineTo(cx - w / 4, cy); x.lineTo(cx, cy - ch * 0.7);
@@ -228,7 +228,7 @@ const Sprites = (() => {
     x.closePath(); x.fill(); x.stroke();
     x.fillStyle = '#fff6a0'; x.fillRect(cx - w / 2 + 3, cy + ch * 0.2, w - 6, ch * 0.1);
     [['#ff2a1f', -w / 4], ['#2fa02a', 0], ['#3dc8ff', w / 4]].forEach(g => {
-      x.fillStyle = g[0]; x.beginPath(); x.arc(cx + g[1], cy + ch * 0.05, lw * 2.2, 0, 7); x.fill(); x.stroke();
+      x.fillStyle = g[0]; x.beginPath(); x.arc(cx + g[1], cy + ch * 0.05, w * 0.07, 0, 7); x.fill(); x.stroke();
     });
   }
 

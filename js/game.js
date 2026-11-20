@@ -1197,8 +1197,7 @@
       ctx.fillStyle = '#2a0008';
       ctx.beginPath(); ctx.ellipse(mx, my + 1, 8, 5.5, 0, 0, TAU); ctx.fill();
       ctx.fillStyle = '#ff6b8a'; ctx.beginPath(); ctx.ellipse(mx, my + 4, 4.5, 2, 0, 0, TAU); ctx.fill();
-      ctx.fillStyle = p.pw.machine ? '#ff3df2' : '#fff';
-      ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(mx, my - 4, 10, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+      if (p.pw.machine) { ctx.strokeStyle = 'rgba(255,61,242,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(mx, my + 1, 10, 7, 0, 0, TAU); ctx.stroke(); }
     }
     ctx.restore();
     // thruster flame
