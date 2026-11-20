@@ -28,12 +28,12 @@ Hit without missing to build a **combo multiplier** (up to **x8**). A tooth that
 
 | | Desktop | Mobile |
 |---|---|---|
-| Move | `←` `→` or `A` `D` | Drag anywhere on the screen |
-| Shoot teeth | `Space` (hold) | Hold the **FIRE** button |
+| Move | `←` `→` or `A` `D` | Touch and slide anywhere on the screen |
+| Shoot teeth | `Space` (hold) | Automatic while your finger is down (the **FIRE** button works too) |
 | Pause | `P` or `Esc` | ❚❚ button, top-right |
 | Mute | `M` | ♪ button, top-right |
 
-Auto-fire while moving can be turned on in **Settings**. It works in both portrait and landscape.
+On mobile, just touch and hold: he fires automatically while you steer. Keyboard players can turn on auto-fire while moving in **Settings**. It works in both portrait and landscape.
 
 ---
 
