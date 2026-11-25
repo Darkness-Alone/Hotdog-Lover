@@ -34,7 +34,7 @@
     playerSpr = Sprites.makePlayer(playerImg, PW, PH);
     headSpr = Sprites.makeHead(playerImg, 26);
   };
-  playerImg.src = 'assets/player.png?v=7';
+  playerImg.src = 'assets/player.png?v=8';
 
   /* ======================= definitions ======================= */
   const DEFS = {
@@ -123,6 +123,7 @@
   const isKey = (...k) => k.some(x => keys[x]);
   window.addEventListener('keydown', e => {
     const k = e.key;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return; // typing a name
     if ([' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(k) && state !== 'title') e.preventDefault();
     Sound.unlock();
     const first = !keys[k];
@@ -184,7 +185,7 @@
     switch (a) {
       case 'play': startGame(); break;
       case 'howto': show('howto', true); break;
-      case 'scores': renderScores(); show('scores', true); break;
+      case 'scores': renderScores(Leaderboard.enabled() ? 'world' : 'mine'); show('scores', true); break;
       case 'settings': syncSettings(); show('settings', true); break;
       case 'back': back(); break;
       case 'resume': resume(); break;
@@ -257,16 +258,107 @@
     store.set('glizzy.scores', top);
     return top.findIndex(x => x.score === score && x.wave === wave);
   }
-  function renderScores() {
-    const s = getScores(), ol = document.getElementById('score-list');
-    ol.innerHTML = '';
-    if (!s.length) { ol.innerHTML = '<li class="empty">NO SCORES YET.<br>GO EAT SOME GLIZZIES.</li>'; return; }
-    s.forEach((r, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="rk">${i + 1}.</span><span class="sc">${String(r.score).padStart(7, '0')}</span><span class="wv">W${r.wave}</span>`;
-      ol.appendChild(li);
+  let scoreTab = Leaderboard.enabled() ? 'world' : 'mine';
+  let lastSubmitted = null; // {name, score} highlighted in the world list
+  function scoreRow(i, name, score, wave, me) {
+    const li = document.createElement('li');
+    if (me) li.className = 'me';
+    const cells = [['rk', (i + 1) + '.'], ['nm', name], ['sc', String(score).padStart(7, '0')], ['wv', 'W' + wave]];
+    for (const [cls, text] of cells) {
+      if (text == null) continue;
+      const sp = document.createElement('span'); sp.className = cls; sp.textContent = text; li.appendChild(sp);
+    }
+    return li;
+  }
+  function renderScores(tab) {
+    if (tab) scoreTab = tab;
+    const ol = document.getElementById('score-list'), note = document.getElementById('score-note');
+    document.getElementById('score-tabs').style.display = Leaderboard.enabled() ? '' : 'none';
+    document.querySelectorAll('#score-tabs .tab').forEach(b => b.classList.toggle('active', b.dataset.tab === scoreTab));
+    ol.innerHTML = ''; note.textContent = '';
+    if (scoreTab === 'mine' || !Leaderboard.enabled()) {
+      const s = getScores();
+      if (!s.length) { ol.innerHTML = '<li class="empty">NO SCORES YET.<br>GO EAT SOME GLIZZIES.</li>'; return; }
+      s.forEach((r, i) => ol.appendChild(scoreRow(i, null, r.score, r.wave)));
+      note.textContent = 'YOUR BEST SCORES ON THIS DEVICE';
+      return;
+    }
+    ol.innerHTML = '<li class="empty">LOADING THE WORLD\'S<br>HUNGRIEST GOBBLERS...</li>';
+    const req = ++renderScores.req;
+    Leaderboard.top(10).then(rows => {
+      if (req !== renderScores.req || scoreTab !== 'world') return;
+      ol.innerHTML = '';
+      if (!rows.length) { ol.innerHTML = '<li class="empty">NO WORLD SCORES YET.<br>BE THE FIRST!</li>'; return; }
+      let marked = false;
+      rows.forEach((r, i) => {
+        const me = !marked && lastSubmitted && r.name === lastSubmitted.name && r.score === lastSubmitted.score;
+        if (me) marked = true;
+        ol.appendChild(scoreRow(i, r.name, r.score, r.wave, me));
+      });
+      note.textContent = 'TOP 10 GOBBLERS ON EARTH';
+    }).catch(() => {
+      if (req !== renderScores.req) return;
+      ol.innerHTML = '<li class="empty">LEADERBOARD OFFLINE.<br>CHECK YOUR CONNECTION.</li>';
     });
   }
+  renderScores.req = 0;
+  document.querySelectorAll('#score-tabs .tab').forEach(b => b.addEventListener('click', () => { Sound.unlock(); Sound.sfx('blip'); renderScores(b.dataset.tab); }));
+
+  function updateWorldBest() {
+    const el = document.getElementById('title-world');
+    if (!Leaderboard.enabled()) { el.textContent = ''; return; }
+    Leaderboard.top(1).then(rows => {
+      el.textContent = rows.length ? `WORLD #1: ${rows[0].name}  ${String(rows[0].score).padStart(7, '0')}` : 'WORLD LEADERBOARD: NO SCORES YET';
+    }).catch(() => { el.textContent = ''; });
+  }
+  updateWorldBest();
+
+  /* game-over name entry */
+  const goForm = document.getElementById('go-submit'), goName = document.getElementById('go-name');
+  const goMsg = document.getElementById('go-msg'), goSend = document.getElementById('go-send');
+  let pendingScore = null;
+  function setupSubmit(score, wave) {
+    pendingScore = Leaderboard.enabled() && score > 0 ? { score, wave } : null;
+    goForm.style.display = pendingScore ? '' : 'none';
+    goName.disabled = false; goSend.disabled = false; goSend.style.display = '';
+    goName.value = store.get('glizzy.name', '');
+    goMsg.textContent = ''; goMsg.className = 'small';
+    if (pendingScore) {
+      goMsg.textContent = '...';
+      Leaderboard.rank(score).then(r => {
+        if (pendingScore && pendingScore.score === score && r) goMsg.textContent = r <= 10 ? `THAT'S #${r} IN THE WORLD! ENTER YOUR NAME.` : `THAT'S #${r} IN THE WORLD.`;
+      }).catch(() => { if (goMsg.textContent === '...') goMsg.textContent = ''; });
+    }
+  }
+  goName.addEventListener('input', () => {
+    const c = goName.value.toUpperCase().replace(/[^A-Z0-9 _.!?-]/g, '').slice(0, Leaderboard.MAX_NAME);
+    if (c !== goName.value) goName.value = c;
+  });
+  goForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!pendingScore) return;
+    const name = Leaderboard.clean(goName.value);
+    if (!name) { goMsg.textContent = 'TYPE A NAME FIRST (UP TO 10 CHARACTERS).'; goName.focus(); return; }
+    const { score, wave } = pendingScore;
+    goName.value = name; goName.disabled = true; goSend.disabled = true;
+    goMsg.textContent = 'SENDING...'; goMsg.className = 'small';
+    Leaderboard.submit(name, score, wave).then(() => {
+      pendingScore = null;
+      store.set('glizzy.name', name);
+      lastSubmitted = { name, score };
+      goSend.style.display = 'none';
+      goMsg.className = 'small cyan';
+      goMsg.textContent = 'SCORE SUBMITTED!';
+      Sound.sfx('powerup');
+      Leaderboard.rank(score).then(r => { if (r) goMsg.textContent = `SUBMITTED! YOU'RE #${r} IN THE WORLD.`; }).catch(() => {});
+      updateWorldBest();
+    }).catch(() => {
+      goName.disabled = false; goSend.disabled = false;
+      goMsg.className = 'small red';
+      goMsg.textContent = "COULDN'T REACH THE LEADERBOARD. TRY AGAIN.";
+    });
+  });
+
   function updateTitleHi() { document.getElementById('title-hi').textContent = String(bestScore()).padStart(7, '0'); }
   updateTitleHi();
 
@@ -297,6 +389,7 @@
   function toTitle() {
     state = 'title'; game = null;
     updateTitleHi();
+    updateWorldBest();
     show('title');
     Sound.playMusic('title');
   }
@@ -311,7 +404,8 @@
     document.getElementById('go-combo').textContent = game.maxCombo;
     document.getElementById('go-best').textContent = String(Math.max(prevBest, game.score)).padStart(7, '0');
     document.getElementById('go-new').style.display = game.score > prevBest && game.score > 0 ? 'block' : 'none';
-    document.getElementById('go-rank').textContent = rank >= 0 && rank < 8 ? `RANK #${rank + 1} ON THE LEADERBOARD` : '';
+    document.getElementById('go-rank').textContent = rank >= 0 && rank < 8 ? `#${rank + 1} ON YOUR PERSONAL BEST LIST` : '';
+    setupSubmit(game.score, game.wave);
     show('gameover');
   }
 
