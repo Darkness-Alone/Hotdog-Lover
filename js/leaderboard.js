@@ -5,7 +5,7 @@ const Leaderboard = (() => {
   // Public "anon" / "publishable" key from Supabase: Project Settings → API.
   // It is meant to be public; the database's row-level security limits it to
   // reading scores and adding new ones. Leave empty to disable the world board.
-  const KEY = '';
+  const KEY = 'sb_publishable_dERcU4biGxXUtcX2Z0tS4Q_y3PH4K8d';
 
   const MAX_NAME = 10;
   const enabled = () => KEY.length > 0;
