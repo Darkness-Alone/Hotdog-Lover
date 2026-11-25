@@ -129,9 +129,11 @@ kbd { display: inline-block; font-family: var(--font); font-size: 8px; padding: 
 .score-list li:nth-child(1) { color: var(--yellow); }
 .score-list li:nth-child(2) { color: var(--cyan); }
 .score-list li:nth-child(3) { color: var(--pink); }
-.score-list .rk { width: 3em; text-align: left; }
-.score-list .sc { flex: 1; }
-.score-list .wv { width: 4em; text-align: right; color: #aaa; }
+.score-list .rk { width: 2.6em; text-align: left; flex: none; }
+.score-list .nm { flex: 1; text-align: left; white-space: pre; overflow: hidden; }
+.score-list .sc { flex: none; text-align: right; }
+.score-list .wv { width: 4em; text-align: right; color: #aaa; flex: none; }
+.score-list li.me { background: rgba(61, 255, 122, 0.12); outline: 2px solid var(--green); }
 .score-list .empty { justify-content: center; color: #aaa; font-size: 9px; line-height: 2; border: 0; }
 
 /* ---------- settings ---------- */
@@ -186,3 +188,25 @@ body.in-game #hud-buttons { display: flex; }
 
 /* retired FIRE button: hide it even if an old cached page still includes it */
 #btn-fire { display: none !important; }
+
+/* ---------- world leaderboard ---------- */
+.tabs { display: flex; justify-content: center; gap: 8px; margin: -4px 0 14px; }
+.tab {
+  font-family: var(--font); font-size: 10px; padding: 9px 14px; cursor: pointer;
+  color: #aaa; background: #1a0b3e; border: 2px solid #3a2a6a;
+}
+.tab.active { color: #000; background: var(--cyan); border-color: var(--cyan); }
+.worldbest { font-size: 9px; color: var(--cyan); margin-top: 8px; min-height: 1em; text-shadow: 2px 2px 0 #000; }
+.submit-box { margin: 10px auto 4px; max-width: 420px; }
+.submit-box label { display: block; font-size: 8px; line-height: 1.7; color: var(--yellow); margin-bottom: 8px; }
+.name-row { display: flex; gap: 8px; }
+.name-row input {
+  flex: 1; min-width: 0; font-family: var(--font); font-size: 14px; text-transform: uppercase;
+  padding: 10px; color: #fff; background: #05010f; border: 3px solid var(--pink); outline: none;
+  -webkit-user-select: text; user-select: text;
+}
+.name-row input:focus { border-color: var(--yellow); box-shadow: 0 0 12px rgba(255, 213, 30, 0.5); }
+.btn.send-btn { min-width: 0; padding: 10px 12px; font-size: 11px; }
+@media (max-width: 420px) {
+  .score-list { font-size: 9px; }
+}

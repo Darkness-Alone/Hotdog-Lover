@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <canvas id="game" aria-label="Glizzy Gobbler game"></canvas>
@@ -31,7 +31,7 @@
       </div>
       <p class="subtitle">"THEY'RE NOT GETTING AWAY WITH THE RELISH."</p>
       <div class="hero-wrap">
-        <img class="hero" src="assets/player.png?v=7" alt="The Gobbler">
+        <img class="hero" src="assets/player.png?v=8" alt="The Gobbler">
         <div class="hero-teeth"><i></i><i></i><i></i></div>
       </div>
       </div>
@@ -43,6 +43,7 @@
         <button class="btn" data-action="settings">SETTINGS</button>
       </nav>
       <div class="hiscore">HI-SCORE <span id="title-hi">0000000</span></div>
+      <div class="worldbest" id="title-world"></div>
       <div class="blink">INSERT TEETH TO PLAY</div>
       </div>
     </div>
@@ -82,7 +83,12 @@
   <section id="screen-scores" class="screen">
     <div class="panel">
       <h2>HIGH SCORES</h2>
+      <div class="tabs" id="score-tabs">
+        <button class="tab active" data-tab="world">WORLD</button>
+        <button class="tab" data-tab="mine">MINE</button>
+      </div>
       <ol id="score-list" class="score-list"></ol>
+      <p id="score-note" class="small"></p>
       <button class="btn" data-action="back">BACK</button>
     </div>
   </section>
@@ -127,6 +133,14 @@
         <tr><td>HI-SCORE</td><td id="go-best">0</td></tr>
       </table>
       <p id="go-rank" class="small cyan"></p>
+      <form id="go-submit" class="submit-box" autocomplete="off">
+        <label for="go-name">ENTER YOUR NAME FOR THE WORLD LEADERBOARD</label>
+        <div class="name-row">
+          <input id="go-name" maxlength="10" autocapitalize="characters" spellcheck="false" placeholder="GOBBLER" enterkeyhint="send">
+          <button type="submit" class="btn send-btn" id="go-send">SUBMIT</button>
+        </div>
+        <p id="go-msg" class="small"></p>
+      </form>
       <nav class="menu">
         <button class="btn primary" data-action="restart">PLAY AGAIN</button>
         <button class="btn" data-action="quit">MAIN MENU</button>
@@ -134,8 +148,9 @@
     </div>
   </section>
 
-  <script src="js/audio.js?v=7"></script>
-  <script src="js/sprites.js?v=7"></script>
-  <script src="js/game.js?v=7"></script>
+  <script src="js/audio.js?v=8"></script>
+  <script src="js/sprites.js?v=8"></script>
+  <script src="js/leaderboard.js?v=9"></script>
+  <script src="js/game.js?v=8"></script>
 </body>
 </html>

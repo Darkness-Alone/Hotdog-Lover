@@ -84,9 +84,20 @@ After that the cycle repeats, tougher each time. Bosses explode into a shower of
 - **Wave-clear bonuses** for accuracy, and for finishing a wave without getting hit.
 - **Big bonus** for defeating a boss.
 - **Extra lives** at 15,000 and 40,000 points, then every 40,000 after that.
-- The top 8 scores are saved in your browser.
+- A **World Top 10** leaderboard for everyone who plays, plus your top 8 personal scores saved in your browser.
 
 ---
+
+## World leaderboard
+
+Scores can go on a shared **World Top 10**, stored in a free [Supabase](https://supabase.com) database. After a game over, players type a name of up to 10 characters and submit their score. The **High Scores** screen has a **WORLD** tab and a **MINE** tab for scores on that device.
+
+To set it up:
+
+1. In the Supabase dashboard, open **SQL Editor → New query**, paste in [`supabase/leaderboard.sql`](supabase/leaderboard.sql), and click **Run**. This creates the `scores` table and only lets players read the board and add scores.
+2. Copy the public **anon / publishable** key from **Project Settings → API** into `KEY` in [`js/leaderboard.js`](js/leaderboard.js). Never use the `service_role` key here.
+
+If the key is blank or the database can't be reached, the game still works and keeps scores on the device only. To remove a bogus score, delete its row in Supabase's **Table Editor**.
 
 ## Running it
 
@@ -114,6 +125,8 @@ To get the public play link above:
 | `style.css` | Retro neon styling and the responsive layout |
 | `js/game.js` | Game loop, player, enemy AI, bosses, power-ups, scoring, HUD |
 | `js/sprites.js` | Procedurally drawn and cached art: hotdogs, toppings, teeth, power-ups |
+| `js/leaderboard.js` | World leaderboard: reads and submits scores through the Supabase REST API |
+| `supabase/leaderboard.sql` | One-time database setup for the world leaderboard |
 | `js/audio.js` | Synthesized sound effects and the chiptune music sequencer (Web Audio, no sound files) |
 | `assets/player.png` | The player character |
 | `docs/` | Screenshots for this README |
